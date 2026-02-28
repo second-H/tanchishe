@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成贪吃蛇图标</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #ccc;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>贪吃蛇游戏图标生成器</h1>
+    <canvas id="iconCanvas" width="128" height="128"></canvas>
+    <div>
+        <button onclick="generateIcon()">生成图标</button>
+        <button onclick="downloadIcon()">下载图标</button>
+    </div>
+    <script>
+        function generateIcon() {
+            const canvas = document.getElementById('iconCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 清空画布
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制背景
+            ctx.fillStyle = '#e8f5e8';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制蛇头
+            ctx.fillStyle = '#333';
+            ctx.fillRect(80, 60, 20, 20);
+            
+            // 绘制蛇身
+            ctx.fillStyle = '#666';
+            ctx.fillRect(60, 60, 20, 20);
+            ctx.fillRect(40, 60, 20, 20);
+            ctx.fillRect(40, 80, 20, 20);
+            ctx.fillRect(40, 100, 20, 20);
+            
+            // 绘制眼睛
+            ctx.fillStyle = 'white';
+            ctx.fillRect(85, 65, 5, 5);
+            ctx.fillRect(90, 65, 5, 5);
+            
+            // 绘制食物
+            ctx.fillStyle = '#f44336';
+            ctx.beginPath();
+            ctx.arc(100, 40, 8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function downloadIcon() {
+            const canvas = document.getElementById('iconCanvas');
+            const dataURL = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'snake-icon.png';
+            link.click();
+        }
+        
+        // 初始生成图标
+        generateIcon();
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="description" content="一款经典的贪吃蛇游戏">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="snake-icon.png" type="image/png">
+    <link rel="apple-touch-icon" href="snake-icon.png">
+    <title>贪吃蛇游戏</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>贪吃蛇游戏</h1>
+        <div class="game-info">
+            <div class="score">分数: <span id="score">0</span></div>
+            <div class="high-score">最高分: <span id="highScore">0</span></div>
+            <div class="level">等级: <span id="level">1</span></div>
+            <div class="time">时间: <span id="time">0</span></div>
+        </div>
+        <div class="game-settings">
+            <div class="difficulty-selector">
+                <label>难度: </label>
+                <select id="difficultySelect">
+                    <option value="easy">简单</option>
+                    <option value="medium" selected>中等</option>
+                    <option value="hard">困难</option>
+                </select>
+            </div>
+            <div class="mode-selector">
+                <label>游戏模式: </label>
+                <select id="modeSelect">
+                    <option value="endless" selected>无尽模式</option>
+                    <option value="time">时间模式</option>
+                    <option value="challenge">挑战模式</option>
+                </select>
+            </div>
+        </div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div class="game-controls">
+            <button id="startBtn">开始游戏</button>
+            <button id="pauseBtn" disabled>暂停</button>
+            <button id="resetBtn">重置</button>
+            <button id="leaderboardBtn">排行榜</button>
+        </div>
+        <div class="touch-controls" id="touchControls">
+            <div class="touch-row">
+                <button class="touch-btn" id="touchUp">↑</button>
+            </div>
+            <div class="touch-row">
+                <button class="touch-btn" id="touchLeft">←</button>
+                <button class="touch-btn" id="touchDown">↓</button>
+                <button class="touch-btn" id="touchRight">→</button>
+            </div>
+        </div>
+        <div class="game-rules">
+            <h3>游戏规则：</h3>
+            <ul>
+                <li>使用方向键控制蛇的移动</li>
+                <li>吃到红色食物加10分</li>
+                <li>吃到金色食物加25分并获得短暂加速</li>
+                <li>撞到墙壁或自身游戏结束</li>
+                <li>随着等级提升，蛇的移动速度会加快</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- 排行榜模态框 -->
+    <div id="leaderboardModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>排行榜</h2>
+            <div id="leaderboardContent">
+                <!-- 排行榜内容将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // 注册Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(function(registration) {
+                        console.log('Service Worker 注册成功:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Service Worker 注册失败:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
