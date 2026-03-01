@@ -14,6 +14,24 @@ const config = {
     challengeModeTarget: 300 // 挑战模式目标分数
 };
 
+// 调整画布大小以适应屏幕
+function resizeCanvas() {
+    const gameContainer = document.querySelector('.game-container');
+    const containerWidth = gameContainer.clientWidth;
+    const maxCanvasSize = Math.min(containerWidth - 30, 400); // 30px 是容器的左右内边距
+    
+    canvas.width = maxCanvasSize;
+    canvas.height = maxCanvasSize;
+    
+    config.canvasWidth = maxCanvasSize;
+    config.canvasHeight = maxCanvasSize;
+    
+    // 重新初始化游戏以适应新的画布大小
+    if (!gameState.isPlaying) {
+        initGame();
+    }
+}
+
 // 游戏状态
 let gameState = {
     snake: [],
@@ -747,3 +765,9 @@ window.addEventListener('click', (e) => {
 
 // 初始化游戏
 initGame();
+
+// 窗口大小改变时调整画布大小
+window.addEventListener('resize', resizeCanvas);
+
+// 初始调整画布大小
+resizeCanvas();
