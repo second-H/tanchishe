@@ -17,20 +17,10 @@ const config = {
 // 调整画布大小以适应屏幕
 function resizeCanvas() {
     const gameContainer = document.querySelector('.game-container');
-    const gameContent = document.querySelector('.game-content');
     
-    // 根据屏幕方向调整画布大小
-    let maxCanvasSize;
-    if (window.innerWidth > window.innerHeight) {
-        // 横屏模式
-        const contentHeight = gameContent ? gameContent.clientHeight : window.innerHeight - 200;
-        const contentWidth = gameContent ? gameContent.clientWidth : window.innerWidth;
-        maxCanvasSize = Math.min(contentHeight - 20, contentWidth / 2 - 10, 400);
-    } else {
-        // 竖屏模式
-        const containerWidth = gameContainer.clientWidth;
-        maxCanvasSize = Math.min(containerWidth - 30, 400);
-    }
+    // 只使用竖屏模式的画布调整逻辑
+    const containerWidth = gameContainer.clientWidth;
+    const maxCanvasSize = Math.min(containerWidth - 30, 400);
     
     canvas.width = maxCanvasSize;
     canvas.height = maxCanvasSize;
@@ -672,30 +662,72 @@ function initBackgroundMusic() {
     backgroundMusic = new Audio();
     backgroundMusic.loop = true;
     backgroundMusic.volume = 0.3;
-    // 使用Web Audio API生成简单的背景音乐
+    // 使用Web Audio API生成轻快活泼的背景音乐
     try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
         
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
+        // 创建多个振荡器以生成更丰富的音效
+        const oscillator1 = audioContext.createOscillator();
+        const oscillator2 = audioContext.createOscillator();
+        const gainNode1 = audioContext.createGain();
+        const gainNode2 = audioContext.createGain();
         
-        // 生成简单的背景音乐
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(261.63, audioContext.currentTime); // C4
-        oscillator.frequency.exponentialRampToValueAtTime(329.63, audioContext.currentTime + 2); // E4
-        oscillator.frequency.exponentialRampToValueAtTime(392.00, audioContext.currentTime + 4); // G4
-        oscillator.frequency.exponentialRampToValueAtTime(523.25, audioContext.currentTime + 6); // C5
-        oscillator.frequency.exponentialRampToValueAtTime(392.00, audioContext.currentTime + 8); // G4
-        oscillator.frequency.exponentialRampToValueAtTime(329.63, audioContext.currentTime + 10); // E4
-        oscillator.frequency.exponentialRampToValueAtTime(261.63, audioContext.currentTime + 12); // C4
+        oscillator1.connect(gainNode1);
+        oscillator2.connect(gainNode2);
+        gainNode1.connect(audioContext.destination);
+        gainNode2.connect(audioContext.destination);
         
-        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 12);
+        // 主旋律 - 轻快的节奏
+        oscillator1.type = 'sine';
+        oscillator1.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+        oscillator1.frequency.exponentialRampToValueAtTime(587.33, audioContext.currentTime + 0.5); // D5
+        oscillator1.frequency.exponentialRampToValueAtTime(659.25, audioContext.currentTime + 1); // E5
+        oscillator1.frequency.exponentialRampToValueAtTime(587.33, audioContext.currentTime + 1.5); // D5
+        oscillator1.frequency.exponentialRampToValueAtTime(523.25, audioContext.currentTime + 2); // C5
+        oscillator1.frequency.exponentialRampToValueAtTime(587.33, audioContext.currentTime + 2.5); // D5
+        oscillator1.frequency.exponentialRampToValueAtTime(659.25, audioContext.currentTime + 3); // E5
+        oscillator1.frequency.exponentialRampToValueAtTime(587.33, audioContext.currentTime + 3.5); // D5
+        oscillator1.frequency.exponentialRampToValueAtTime(523.25, audioContext.currentTime + 4); // C5
         
-        oscillator.start(audioContext.currentTime);
-        oscillator.stop(audioContext.currentTime + 12);
+        // 和声 - 增加活泼感
+        oscillator2.type = 'triangle';
+        oscillator2.frequency.setValueAtTime(261.63, audioContext.currentTime); // C4
+        oscillator2.frequency.exponentialRampToValueAtTime(293.66, audioContext.currentTime + 0.5); // D4
+        oscillator2.frequency.exponentialRampToValueAtTime(329.63, audioContext.currentTime + 1); // E4
+        oscillator2.frequency.exponentialRampToValueAtTime(293.66, audioContext.currentTime + 1.5); // D4
+        oscillator2.frequency.exponentialRampToValueAtTime(261.63, audioContext.currentTime + 2); // C4
+        oscillator2.frequency.exponentialRampToValueAtTime(293.66, audioContext.currentTime + 2.5); // D4
+        oscillator2.frequency.exponentialRampToValueAtTime(329.63, audioContext.currentTime + 3); // E4
+        oscillator2.frequency.exponentialRampToValueAtTime(293.66, audioContext.currentTime + 3.5); // D4
+        oscillator2.frequency.exponentialRampToValueAtTime(261.63, audioContext.currentTime + 4); // C4
+        
+        // 音量控制，增加动态感
+        gainNode1.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode1.gain.exponentialRampToValueAtTime(0.15, audioContext.currentTime + 0.25);
+        gainNode1.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 0.5);
+        gainNode1.gain.exponentialRampToValueAtTime(0.15, audioContext.currentTime + 0.75);
+        gainNode1.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 1);
+        gainNode1.gain.exponentialRampToValueAtTime(0.15, audioContext.currentTime + 1.25);
+        gainNode1.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 1.5);
+        gainNode1.gain.exponentialRampToValueAtTime(0.15, audioContext.currentTime + 1.75);
+        gainNode1.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 2);
+        gainNode1.gain.exponentialRampToValueAtTime(0.15, audioContext.currentTime + 2.25);
+        gainNode1.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 2.5);
+        gainNode1.gain.exponentialRampToValueAtTime(0.15, audioContext.currentTime + 2.75);
+        gainNode1.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 3);
+        gainNode1.gain.exponentialRampToValueAtTime(0.15, audioContext.currentTime + 3.25);
+        gainNode1.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 3.5);
+        gainNode1.gain.exponentialRampToValueAtTime(0.15, audioContext.currentTime + 3.75);
+        gainNode1.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 4);
+        
+        gainNode2.gain.setValueAtTime(0.05, audioContext.currentTime);
+        gainNode2.gain.exponentialRampToValueAtTime(0.08, audioContext.currentTime + 4);
+        
+        // 启动振荡器
+        oscillator1.start(audioContext.currentTime);
+        oscillator2.start(audioContext.currentTime);
+        oscillator1.stop(audioContext.currentTime + 4);
+        oscillator2.stop(audioContext.currentTime + 4);
     } catch (e) {
         // 忽略音频错误
     }
@@ -859,15 +891,6 @@ function drawClickEffect(x, y) {
 
 // 处理点击/触摸事件
 function handleCanvasInput(e) {
-    // 检查是否为横屏模式，如果是则不处理点击控制
-    if (window.innerWidth > window.innerHeight) {
-        // 横屏模式下，只处理游戏结束状态下的点击重新开始
-        if (!gameState.isPlaying) {
-            startGame();
-        }
-        return;
-    }
-    
     if (!gameState.isPlaying) {
         // 游戏结束状态下点击画布重新开始游戏
         startGame();
