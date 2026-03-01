@@ -232,8 +232,8 @@ function drawGame() {
         );
     }
     
-    // 绘制游戏模式信息
-    drawModeInfo();
+    // 绘制游戏信息
+    drawGameInfo();
 }
 
 // 绘制蛇头
@@ -266,21 +266,31 @@ function drawSnakeHead(segment, direction) {
     }
 }
 
-// 绘制游戏模式信息
-function drawModeInfo() {
+// 绘制游戏信息
+function drawGameInfo() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.font = '14px Arial';
+    ctx.font = '12px Arial';
     ctx.textAlign = 'left';
     
+    // 绘制分数
+    ctx.fillText(`分数: ${gameState.score}`, 10, 20);
+    // 绘制最高分
+    ctx.fillText(`最高分: ${gameState.highScore}`, 10, 40);
+    // 绘制等级
+    ctx.fillText(`等级: ${gameState.level}`, 10, 60);
+    // 绘制时间
+    ctx.fillText(`时间: ${gameState.time}`, 10, 80);
+    
+    // 绘制游戏模式信息
     if (gameState.mode === 'time') {
         const timeLeft = config.timeModeDuration - gameState.time;
-        ctx.fillText(`时间模式: ${timeLeft}秒`, 10, 20);
+        ctx.fillText(`时间模式: ${timeLeft}秒`, 10, 100);
     } else if (gameState.mode === 'challenge') {
         const scoreLeft = config.challengeModeTarget - gameState.score;
-        ctx.fillText(`挑战模式: 目标${config.challengeModeTarget}分`, 10, 20);
-        ctx.fillText(`还需: ${Math.max(0, scoreLeft)}分`, 10, 40);
+        ctx.fillText(`挑战模式: 目标${config.challengeModeTarget}分`, 10, 100);
+        ctx.fillText(`还需: ${Math.max(0, scoreLeft)}分`, 10, 120);
     } else {
-        ctx.fillText('无尽模式', 10, 20);
+        ctx.fillText('无尽模式', 10, 100);
     }
 }
 
