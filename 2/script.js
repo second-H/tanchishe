@@ -843,6 +843,41 @@ function handleJoystickMove(touch) {
     }
 }
 
+// 添加鼠标事件支持，方便在电脑上测试
+function initJoystickMouseSupport() {
+    // 鼠标按下事件
+    joystickContainer.addEventListener('mousedown', (e) => {
+        isJoystickActive = true;
+        handleJoystickMove(e);
+        // 开始持续检测方向
+        joystickInterval = setInterval(() => {
+            if (joystickDirection) {
+                handleTouchControl(joystickDirection);
+            }
+        }, 100); // 每100ms检测一次方向
+    });
+    
+    // 鼠标移动事件
+    document.addEventListener('mousemove', (e) => {
+        if (isJoystickActive) {
+            handleJoystickMove(e);
+        }
+    });
+    
+    // 鼠标释放事件
+    document.addEventListener('mouseup', () => {
+        resetJoystick();
+    });
+    
+    // 鼠标离开事件
+    document.addEventListener('mouseleave', () => {
+        resetJoystick();
+    });
+}
+
+// 初始化鼠标支持
+initJoystickMouseSupport();
+
 // 重置摇杆
 function resetJoystick() {
     isJoystickActive = false;
