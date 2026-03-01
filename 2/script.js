@@ -96,6 +96,9 @@ function initGame() {
     gameState.highScore = parseInt(localStorage.getItem('snakeHighScore')) || 0;
     updateHighScore();
     
+    // 初始化背景音乐
+    initBackgroundMusic();
+    
     // 获取难度和模式设置
     gameState.difficulty = difficultySelect.value;
     gameState.mode = modeSelect.value;
@@ -464,6 +467,9 @@ function gameOver() {
     // 播放游戏结束音效
     playSound('gameOver');
     
+    // 停止背景音乐
+    stopBackgroundMusic();
+    
     clearInterval(gameState.gameLoop);
     if (gameState.speedBoostTimer) {
         clearTimeout(gameState.speedBoostTimer);
@@ -486,6 +492,9 @@ function gameOver() {
 function gameWin() {
     // 播放胜利音效
     playSound('win');
+    
+    // 停止背景音乐
+    stopBackgroundMusic();
     
     clearInterval(gameState.gameLoop);
     if (gameState.speedBoostTimer) {
@@ -520,6 +529,9 @@ function startGame() {
     // 播放开始游戏音效
     playSound('start');
     
+    // 播放背景音乐
+    playBackgroundMusic();
+    
     gameState.isPlaying = true;
     gameState.isPaused = false;
     startBtn.disabled = true;
@@ -547,10 +559,24 @@ function startGame() {
 function pauseGame() {
     gameState.isPaused = !gameState.isPaused;
     pauseBtn.textContent = gameState.isPaused ? '继续' : '暂停';
+    
+    // 暂停或继续背景音乐
+    if (gameState.isPaused) {
+        if (backgroundMusic) {
+            backgroundMusic.pause();
+        }
+    } else {
+        if (backgroundMusic) {
+            backgroundMusic.play().catch(e => console.log('背景音乐播放失败:', e));
+        }
+    }
 }
 
 // 重置游戏
 function resetGame() {
+    // 停止背景音乐
+    stopBackgroundMusic();
+    
     clearInterval(gameState.gameLoop);
     if (gameState.speedBoostTimer) {
         clearTimeout(gameState.speedBoostTimer);
@@ -635,6 +661,58 @@ function handleTouchControl(direction) {
                 gameState.nextDirection = 'right';
             }
             break;
+    }
+}
+
+// 背景音乐
+let backgroundMusic = null;
+
+// 初始化背景音乐
+function initBackgroundMusic() {
+    backgroundMusic = new Audio();
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = 0.3;
+    // 使用Web Audio API生成简单的背景音乐
+    try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        // 生成简单的背景音乐
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(261.63, audioContext.currentTime); // C4
+        oscillator.frequency.exponentialRampToValueAtTime(329.63, audioContext.currentTime + 2); // E4
+        oscillator.frequency.exponentialRampToValueAtTime(392.00, audioContext.currentTime + 4); // G4
+        oscillator.frequency.exponentialRampToValueAtTime(523.25, audioContext.currentTime + 6); // C5
+        oscillator.frequency.exponentialRampToValueAtTime(392.00, audioContext.currentTime + 8); // G4
+        oscillator.frequency.exponentialRampToValueAtTime(329.63, audioContext.currentTime + 10); // E4
+        oscillator.frequency.exponentialRampToValueAtTime(261.63, audioContext.currentTime + 12); // C4
+        
+        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.1, audioContext.currentTime + 12);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 12);
+    } catch (e) {
+        // 忽略音频错误
+    }
+}
+
+// 播放背景音乐
+function playBackgroundMusic() {
+    if (backgroundMusic) {
+        backgroundMusic.play().catch(e => console.log('背景音乐播放失败:', e));
+    }
+}
+
+// 停止背景音乐
+function stopBackgroundMusic() {
+    if (backgroundMusic) {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
     }
 }
 
