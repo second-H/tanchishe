@@ -13,29 +13,38 @@
 </head>
 <body>
     <div class="game-container">
-        <h1>贪吃蛇游戏</h1>
-        <div class="game-info">
-            <div class="score">分数: <span id="score">0</span></div>
-            <div class="high-score">最高分: <span id="highScore">0</span></div>
-            <div class="level">等级: <span id="level">1</span></div>
-            <div class="time">时间: <span id="time">0</span></div>
-        </div>
-        <div class="game-settings">
-            <div class="difficulty-selector">
-                <label>难度: </label>
-                <select id="difficultySelect">
-                    <option value="easy">简单</option>
-                    <option value="medium" selected>中等</option>
-                    <option value="hard">困难</option>
-                </select>
+        <div class="game-header">
+            <h1>贪吃蛇游戏</h1>
+            <div class="game-info">
+                <div class="score">分数: <span id="score">0</span></div>
+                <div class="high-score">最高分: <span id="highScore">0</span></div>
+                <div class="level">等级: <span id="level">1</span></div>
+                <div class="time">时间: <span id="time">0</span></div>
             </div>
-            <div class="mode-selector">
-                <label>游戏模式: </label>
-                <select id="modeSelect">
-                    <option value="endless" selected>无尽模式</option>
-                    <option value="time">时间模式</option>
-                    <option value="challenge">挑战模式</option>
-                </select>
+            <div class="game-settings">
+                <div class="difficulty-selector">
+                    <label>难度: </label>
+                    <select id="difficultySelect">
+                        <option value="easy">简单</option>
+                        <option value="medium" selected>中等</option>
+                        <option value="hard">困难</option>
+                    </select>
+                </div>
+                <div class="mode-selector">
+                    <label>游戏模式: </label>
+                    <select id="modeSelect">
+                        <option value="endless" selected>无尽模式</option>
+                        <option value="time">时间模式</option>
+                        <option value="challenge">挑战模式</option>
+                    </select>
+                </div>
+                <div class="control-selector">
+                    <label>控制方式: </label>
+                    <select id="controlSelect">
+                        <option value="joystick" selected>虚拟摇杆</option>
+                        <option value="buttons">方向按钮</option>
+                    </select>
+                </div>
             </div>
         </div>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
@@ -46,9 +55,19 @@
             <button id="leaderboardBtn">排行榜</button>
         </div>
         <div class="touch-controls" id="touchControls">
-            <div class="joystick-container">
+            <div class="joystick-container" id="joystickContainer">
                 <div class="joystick-base" id="joystickBase"></div>
                 <div class="joystick-stick" id="joystickStick"></div>
+            </div>
+            <div class="buttons-container" id="buttonsContainer" style="display: none;">
+                <div class="touch-row">
+                    <button class="touch-btn" id="touchUp">↑</button>
+                </div>
+                <div class="touch-row">
+                    <button class="touch-btn" id="touchLeft">←</button>
+                    <button class="touch-btn" id="touchDown">↓</button>
+                    <button class="touch-btn" id="touchRight">→</button>
+                </div>
             </div>
         </div>
         <div class="game-rules">

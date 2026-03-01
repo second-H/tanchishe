@@ -66,6 +66,13 @@ const resetBtn = document.getElementById('resetBtn');
 const leaderboardBtn = document.getElementById('leaderboardBtn');
 const difficultySelect = document.getElementById('difficultySelect');
 const modeSelect = document.getElementById('modeSelect');
+const controlSelect = document.getElementById('controlSelect');
+const joystickContainer = document.getElementById('joystickContainer');
+const buttonsContainer = document.getElementById('buttonsContainer');
+const touchUp = document.getElementById('touchUp');
+const touchDown = document.getElementById('touchDown');
+const touchLeft = document.getElementById('touchLeft');
+const touchRight = document.getElementById('touchRight');
 
 const leaderboardModal = document.getElementById('leaderboardModal');
 const leaderboardContent = document.getElementById('leaderboardContent');
@@ -80,6 +87,9 @@ function initGame() {
     // 获取难度和模式设置
     gameState.difficulty = difficultySelect.value;
     gameState.mode = modeSelect.value;
+    
+    // 切换控制方式
+    switchControlMode();
     
     // 根据难度设置初始速度
     switch (gameState.difficulty) {
@@ -763,21 +773,40 @@ resetBtn.addEventListener('click', resetGame);
 leaderboardBtn.addEventListener('click', showLeaderboard);
 difficultySelect.addEventListener('change', initGame);
 modeSelect.addEventListener('change', initGame);
+controlSelect.addEventListener('change', switchControlMode);
 document.addEventListener('keydown', handleKeyPress);
 canvas.addEventListener('click', handleMouseClick);
 
+// 触摸控制事件监听器
+touchUp.addEventListener('click', () => handleTouchControl('up'));
+touchDown.addEventListener('click', () => handleTouchControl('down'));
+touchLeft.addEventListener('click', () => handleTouchControl('left'));
+touchRight.addEventListener('click', () => handleTouchControl('right'));
+
 // 虚拟摇杆控制
-const joystickContainer = document.querySelector('.joystick-container');
 const joystickBase = document.getElementById('joystickBase');
 const joystickStick = document.getElementById('joystickStick');
 let isJoystickActive = false;
 let joystickDirection = null;
 let joystickInterval = null;
 
+// 切换控制方式
+function switchControlMode() {
+    const controlMode = controlSelect.value;
+    if (controlMode === 'joystick') {
+        joystickContainer.style.display = 'block';
+        buttonsContainer.style.display = 'none';
+    } else {
+        joystickContainer.style.display = 'none';
+        buttonsContainer.style.display = 'flex';
+    }
+}
+
 // 初始化虚拟摇杆
 function initJoystick() {
     // 触摸开始事件
     joystickContainer.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // 防止默认行为
         isJoystickActive = true;
         handleJoystickMove(e.touches[0]);
         // 开始持续检测方向
@@ -785,11 +814,12 @@ function initJoystick() {
             if (joystickDirection) {
                 handleTouchControl(joystickDirection);
             }
-        }, 100); // 每100ms检测一次方向
+        }, 50); // 每50ms检测一次方向，提高响应速度
     });
     
     // 触摸移动事件
     joystickContainer.addEventListener('touchmove', (e) => {
+        e.preventDefault(); // 防止默认行为
         if (isJoystickActive) {
             handleJoystickMove(e.touches[0]);
         }
@@ -834,12 +864,18 @@ function handleJoystickMove(touch) {
     joystickStick.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
     
     // 计算方向
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        // 水平方向
-        joystickDirection = deltaX > 0 ? 'right' : 'left';
+    const deadZone = 10; // 死区大小，防止轻微触摸导致方向改变
+    if (Math.abs(deltaX) > deadZone || Math.abs(deltaY) > deadZone) {
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+            // 水平方向
+            joystickDirection = deltaX > 0 ? 'right' : 'left';
+        } else {
+            // 垂直方向
+            joystickDirection = deltaY > 0 ? 'down' : 'up';
+        }
     } else {
-        // 垂直方向
-        joystickDirection = deltaY > 0 ? 'down' : 'up';
+        // 在死区内，不改变方向
+        joystickDirection = null;
     }
 }
 
@@ -906,6 +942,9 @@ initGame();
 
 // 窗口大小改变时调整画布大小
 window.addEventListener('resize', resizeCanvas);
+
+// 屏幕方向变化时调整画布大小
+window.addEventListener('orientationchange', resizeCanvas);
 
 // 初始调整画布大小
 resizeCanvas();
