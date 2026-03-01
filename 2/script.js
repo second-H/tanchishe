@@ -747,8 +747,40 @@ function closeLeaderboard() {
     leaderboardModal.style.display = 'none';
 }
 
-// 处理鼠标点击事件
-function handleMouseClick(e) {
+// 绘制点击效果
+function drawClickEffect(x, y) {
+    // 创建一个临时的点击效果
+    const effect = {
+        x: x,
+        y: y,
+        radius: 10,
+        maxRadius: 30,
+        alpha: 1,
+        decay: 0.05
+    };
+    
+    // 绘制效果
+    function animate() {
+        if (effect.alpha > 0) {
+            ctx.beginPath();
+            ctx.arc(effect.x, effect.y, effect.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(76, 175, 80, ${effect.alpha})`;
+            ctx.fill();
+            
+            // 更新效果
+            effect.radius += 1;
+            effect.alpha -= effect.decay;
+            
+            // 继续动画
+            requestAnimationFrame(animate);
+        }
+    }
+    
+    animate();
+}
+
+// 处理点击/触摸事件
+function handleCanvasInput(e) {
     if (!gameState.isPlaying) {
         // 游戏结束状态下点击画布重新开始游戏
         startGame();
@@ -757,18 +789,35 @@ function handleMouseClick(e) {
     
     if (gameState.isPaused) return;
     
+    // 获取点击/触摸位置
+    let clientX, clientY;
+    if (e.type === 'touchstart' || e.type === 'touchmove') {
+        e.preventDefault();
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+    
     const rect = canvas.getBoundingClientRect();
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const inputX = clientX - rect.left;
+    const inputY = clientY - rect.top;
     
     // 计算蛇头位置（像素坐标）
     const snakeHead = gameState.snake[0];
     const headX = snakeHead.x * config.gridSize + config.gridSize / 2;
     const headY = snakeHead.y * config.gridSize + config.gridSize / 2;
     
-    // 计算鼠标与蛇头的相对位置
-    const dx = mouseX - headX;
-    const dy = mouseY - headY;
+    // 计算输入与蛇头的相对位置
+    const dx = inputX - headX;
+    const dy = inputY - headY;
+    
+    // 添加死区，防止误触
+    const deadZone = 20;
+    if (Math.abs(dx) < deadZone && Math.abs(dy) < deadZone) {
+        return;
+    }
     
     // 根据相对位置确定新方向
     if (Math.abs(dx) > Math.abs(dy)) {
@@ -786,6 +835,9 @@ function handleMouseClick(e) {
             gameState.nextDirection = 'up';
         }
     }
+    
+    // 添加视觉反馈
+    drawClickEffect(inputX, inputY);
 }
 
 // 事件监听器
@@ -797,7 +849,9 @@ difficultySelect.addEventListener('change', initGame);
 modeSelect.addEventListener('change', initGame);
 controlSelect.addEventListener('change', switchControlMode);
 document.addEventListener('keydown', handleKeyPress);
-canvas.addEventListener('click', handleMouseClick);
+canvas.addEventListener('click', handleCanvasInput);
+canvas.addEventListener('touchstart', handleCanvasInput);
+canvas.addEventListener('touchmove', handleCanvasInput);
 
 // 触摸控制事件监听器
 // 为方向按钮添加点击事件
