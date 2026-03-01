@@ -47,26 +47,30 @@
                 </div>
             </div>
         </div>
-        <canvas id="gameCanvas" width="400" height="400"></canvas>
-        <div class="game-controls">
-            <button id="startBtn">开始游戏</button>
-            <button id="pauseBtn" disabled>暂停</button>
-            <button id="resetBtn">重置</button>
-            <button id="leaderboardBtn">排行榜</button>
-        </div>
-        <div class="touch-controls" id="touchControls">
-            <div class="joystick-container" id="joystickContainer">
-                <div class="joystick-base" id="joystickBase"></div>
-                <div class="joystick-stick" id="joystickStick"></div>
-            </div>
-            <div class="buttons-container" id="buttonsContainer" style="display: none;">
-                <div class="touch-row">
-                    <button class="touch-btn" id="touchUp">↑</button>
+        <div class="game-content">
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div class="control-panel">
+                <div class="game-controls">
+                    <button id="startBtn">开始游戏</button>
+                    <button id="pauseBtn" disabled>暂停</button>
+                    <button id="resetBtn">重置</button>
+                    <button id="leaderboardBtn">排行榜</button>
                 </div>
-                <div class="touch-row">
-                    <button class="touch-btn" id="touchLeft">←</button>
-                    <button class="touch-btn" id="touchDown">↓</button>
-                    <button class="touch-btn" id="touchRight">→</button>
+                <div class="touch-controls" id="touchControls">
+                    <div class="joystick-container" id="joystickContainer">
+                        <div class="joystick-base" id="joystickBase"></div>
+                        <div class="joystick-stick" id="joystickStick"></div>
+                    </div>
+                    <div class="buttons-container" id="buttonsContainer" style="display: none;">
+                        <div class="touch-row">
+                            <button class="touch-btn" id="touchUp">↑</button>
+                        </div>
+                        <div class="touch-row">
+                            <button class="touch-btn" id="touchLeft">←</button>
+                            <button class="touch-btn" id="touchDown">↓</button>
+                            <button class="touch-btn" id="touchRight">→</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
