@@ -476,10 +476,6 @@ function gameOver() {
     startBtn.disabled = false;
     pauseBtn.disabled = true;
     
-    // 移除game-started类，恢复到游戏设置界面
-    const gameContainer = document.querySelector('.game-container');
-    gameContainer.classList.remove('game-started');
-    
     // 保存分数到排行榜
     saveScoreToLeaderboard();
     
@@ -503,10 +499,6 @@ function gameWin() {
     startBtn.disabled = false;
     pauseBtn.disabled = true;
     
-    // 移除game-started类，恢复到游戏设置界面
-    const gameContainer = document.querySelector('.game-container');
-    gameContainer.classList.remove('game-started');
-    
     // 保存分数到排行榜
     saveScoreToLeaderboard();
     
@@ -524,10 +516,6 @@ function gameTick() {
 function startGame() {
     // 无论游戏是否结束，都重新初始化游戏
     initGame();
-    
-    // 添加game-started类，切换到游戏开始后的布局
-    const gameContainer = document.querySelector('.game-container');
-    gameContainer.classList.add('game-started');
     
     // 播放开始游戏音效
     playSound('start');
@@ -570,11 +558,6 @@ function resetGame() {
     if (gameState.timeTimer) {
         clearInterval(gameState.timeTimer);
     }
-    
-    // 移除game-started类，恢复到游戏设置界面
-    const gameContainer = document.querySelector('.game-container');
-    gameContainer.classList.remove('game-started');
-    
     initGame();
 }
 
