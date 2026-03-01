@@ -781,6 +781,15 @@ function drawClickEffect(x, y) {
 
 // 处理点击/触摸事件
 function handleCanvasInput(e) {
+    // 检查是否为横屏模式，如果是则不处理点击控制
+    if (window.innerWidth > window.innerHeight) {
+        // 横屏模式下，只处理游戏结束状态下的点击重新开始
+        if (!gameState.isPlaying) {
+            startGame();
+        }
+        return;
+    }
+    
     if (!gameState.isPlaying) {
         // 游戏结束状态下点击画布重新开始游戏
         startGame();
