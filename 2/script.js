@@ -17,16 +17,18 @@ const config = {
 // 调整画布大小以适应屏幕
 function resizeCanvas() {
     const gameContainer = document.querySelector('.game-container');
-    const containerWidth = gameContainer.clientWidth;
-    const containerHeight = gameContainer.clientHeight;
+    const gameContent = document.querySelector('.game-content');
     
     // 根据屏幕方向调整画布大小
     let maxCanvasSize;
     if (window.innerWidth > window.innerHeight) {
         // 横屏模式
-        maxCanvasSize = Math.min(containerHeight - 60, containerWidth / 2 - 20, 400);
+        const contentHeight = gameContent ? gameContent.clientHeight : window.innerHeight - 200;
+        const contentWidth = gameContent ? gameContent.clientWidth : window.innerWidth;
+        maxCanvasSize = Math.min(contentHeight - 20, contentWidth / 2 - 10, 400);
     } else {
         // 竖屏模式
+        const containerWidth = gameContainer.clientWidth;
         maxCanvasSize = Math.min(containerWidth - 30, 400);
     }
     
