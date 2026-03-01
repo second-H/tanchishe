@@ -18,7 +18,17 @@ const config = {
 function resizeCanvas() {
     const gameContainer = document.querySelector('.game-container');
     const containerWidth = gameContainer.clientWidth;
-    const maxCanvasSize = Math.min(containerWidth - 30, 400); // 30px 是容器的左右内边距
+    const containerHeight = gameContainer.clientHeight;
+    
+    // 根据屏幕方向调整画布大小
+    let maxCanvasSize;
+    if (window.innerWidth > window.innerHeight) {
+        // 横屏模式
+        maxCanvasSize = Math.min(containerHeight - 60, containerWidth / 2 - 20, 400);
+    } else {
+        // 竖屏模式
+        maxCanvasSize = Math.min(containerWidth - 30, 400);
+    }
     
     canvas.width = maxCanvasSize;
     canvas.height = maxCanvasSize;
@@ -778,10 +788,29 @@ document.addEventListener('keydown', handleKeyPress);
 canvas.addEventListener('click', handleMouseClick);
 
 // 触摸控制事件监听器
+// 为方向按钮添加点击事件
 touchUp.addEventListener('click', () => handleTouchControl('up'));
 touchDown.addEventListener('click', () => handleTouchControl('down'));
 touchLeft.addEventListener('click', () => handleTouchControl('left'));
 touchRight.addEventListener('click', () => handleTouchControl('right'));
+
+// 为方向按钮添加触摸事件，提高响应速度
+touchUp.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleTouchControl('up');
+});
+touchDown.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleTouchControl('down');
+});
+touchLeft.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleTouchControl('left');
+});
+touchRight.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    handleTouchControl('right');
+});
 
 // 虚拟摇杆控制
 const joystickBase = document.getElementById('joystickBase');
