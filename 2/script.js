@@ -66,10 +66,7 @@ const resetBtn = document.getElementById('resetBtn');
 const leaderboardBtn = document.getElementById('leaderboardBtn');
 const difficultySelect = document.getElementById('difficultySelect');
 const modeSelect = document.getElementById('modeSelect');
-const touchUp = document.getElementById('touchUp');
-const touchDown = document.getElementById('touchDown');
-const touchLeft = document.getElementById('touchLeft');
-const touchRight = document.getElementById('touchRight');
+
 const leaderboardModal = document.getElementById('leaderboardModal');
 const leaderboardContent = document.getElementById('leaderboardContent');
 const closeModal = document.querySelector('.close');
@@ -533,7 +530,17 @@ function resetGame() {
 }
 
 // 处理键盘输入
+let lastKeyPressTime = 0;
+const keyPressDelay = 50; // 按键延迟，防止快速连续按键导致方向混乱
+
 function handleKeyPress(e) {
+    const currentTime = Date.now();
+    if (currentTime - lastKeyPressTime < keyPressDelay) {
+        return; // 忽略短时间内的重复按键
+    }
+    
+    lastKeyPressTime = currentTime;
+    
     switch (e.key) {
         case 'ArrowUp':
             if (gameState.direction !== 'down') {
@@ -564,7 +571,17 @@ function handleKeyPress(e) {
 }
 
 // 处理触摸控制
+let lastTouchTime = 0;
+const touchDelay = 50; // 触摸延迟，防止快速连续点击导致方向混乱
+
 function handleTouchControl(direction) {
+    const currentTime = Date.now();
+    if (currentTime - lastTouchTime < touchDelay) {
+        return; // 忽略短时间内的重复触摸
+    }
+    
+    lastTouchTime = currentTime;
+    
     switch (direction) {
         case 'up':
             if (gameState.direction !== 'down') {
@@ -749,11 +766,97 @@ modeSelect.addEventListener('change', initGame);
 document.addEventListener('keydown', handleKeyPress);
 canvas.addEventListener('click', handleMouseClick);
 
-// 触摸控制事件监听器
-touchUp.addEventListener('click', () => handleTouchControl('up'));
-touchDown.addEventListener('click', () => handleTouchControl('down'));
-touchLeft.addEventListener('click', () => handleTouchControl('left'));
-touchRight.addEventListener('click', () => handleTouchControl('right'));
+// 虚拟摇杆控制
+const joystickContainer = document.querySelector('.joystick-container');
+const joystickBase = document.getElementById('joystickBase');
+const joystickStick = document.getElementById('joystickStick');
+let isJoystickActive = false;
+let joystickDirection = null;
+let joystickInterval = null;
+
+// 初始化虚拟摇杆
+function initJoystick() {
+    // 触摸开始事件
+    joystickContainer.addEventListener('touchstart', (e) => {
+        isJoystickActive = true;
+        handleJoystickMove(e.touches[0]);
+        // 开始持续检测方向
+        joystickInterval = setInterval(() => {
+            if (joystickDirection) {
+                handleTouchControl(joystickDirection);
+            }
+        }, 100); // 每100ms检测一次方向
+    });
+    
+    // 触摸移动事件
+    joystickContainer.addEventListener('touchmove', (e) => {
+        if (isJoystickActive) {
+            handleJoystickMove(e.touches[0]);
+        }
+    });
+    
+    // 触摸结束事件
+    joystickContainer.addEventListener('touchend', () => {
+        resetJoystick();
+    });
+    
+    // 触摸离开事件
+    joystickContainer.addEventListener('touchleave', () => {
+        resetJoystick();
+    });
+}
+
+// 处理摇杆移动
+function handleJoystickMove(touch) {
+    const rect = joystickBase.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const touchX = touch.clientX;
+    const touchY = touch.clientY;
+    
+    // 计算触摸点相对于摇杆中心的偏移
+    let deltaX = touchX - centerX;
+    let deltaY = touchY - centerY;
+    
+    // 计算距离
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const maxDistance = rect.width / 2;
+    
+    // 限制摇杆移动范围
+    if (distance > maxDistance) {
+        const ratio = maxDistance / distance;
+        deltaX *= ratio;
+        deltaY *= ratio;
+    }
+    
+    // 更新摇杆位置
+    joystickStick.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+    
+    // 计算方向
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // 水平方向
+        joystickDirection = deltaX > 0 ? 'right' : 'left';
+    } else {
+        // 垂直方向
+        joystickDirection = deltaY > 0 ? 'down' : 'up';
+    }
+}
+
+// 重置摇杆
+function resetJoystick() {
+    isJoystickActive = false;
+    joystickDirection = null;
+    joystickStick.style.transform = 'translate(0, 0)';
+    
+    if (joystickInterval) {
+        clearInterval(joystickInterval);
+        joystickInterval = null;
+    }
+}
+
+// 初始化虚拟摇杆
+initJoystick();
 
 // 模态框事件监听器
 closeModal.addEventListener('click', closeLeaderboard);
