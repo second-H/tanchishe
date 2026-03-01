@@ -38,6 +38,7 @@ function resizeCanvas() {
 let gameState = {
     snake: [],
     food: {},
+    specialFood: null,
     direction: 'right',
     nextDirection: 'right',
     score: 0,
@@ -110,6 +111,7 @@ function initGame() {
     }
     
     // 重置游戏状态
+    const { food, specialFood } = generateFood();
     gameState = {
         ...gameState,
         snake: [
@@ -117,7 +119,8 @@ function initGame() {
             { x: 9, y: 10 },
             { x: 8, y: 10 }
         ],
-        food: generateFood(),
+        food: food,
+        specialFood: specialFood,
         direction: 'right',
         nextDirection: 'right',
         score: 0,
@@ -144,15 +147,29 @@ function initGame() {
 
 // 生成食物
 function generateFood() {
+    // 生成普通食物
     let food;
     do {
         food = {
             x: Math.floor(Math.random() * (config.canvasWidth / config.gridSize)),
             y: Math.floor(Math.random() * (config.canvasHeight / config.gridSize)),
-            isSpecial: Math.random() < config.specialFoodChance
+            isSpecial: false
         };
     } while (isFoodOnSnake(food));
-    return food;
+    
+    // 随机生成特殊食物
+    let specialFood = null;
+    if (Math.random() < config.specialFoodChance) {
+        do {
+            specialFood = {
+                x: Math.floor(Math.random() * (config.canvasWidth / config.gridSize)),
+                y: Math.floor(Math.random() * (config.canvasHeight / config.gridSize)),
+                isSpecial: true
+            };
+        } while (isFoodOnSnake(specialFood) || (specialFood.x === food.x && specialFood.y === food.y));
+    }
+    
+    return { food, specialFood };
 }
 
 // 检查食物是否在蛇身上
@@ -199,30 +216,30 @@ function drawGame() {
         }
     });
     
-    // 绘制食物
-    if (gameState.food.isSpecial) {
+    // 绘制普通食物
+    ctx.fillStyle = '#f44336';
+    ctx.fillRect(
+        gameState.food.x * config.gridSize,
+        gameState.food.y * config.gridSize,
+        config.gridSize - 1,
+        config.gridSize - 1
+    );
+    
+    // 绘制特殊食物
+    if (gameState.specialFood) {
         // 绘制特殊食物的闪烁效果
         const currentTime = Date.now();
         const flash = Math.sin(currentTime / 200) > 0;
         ctx.fillStyle = flash ? '#ffeb3b' : '#ffc107';
         ctx.beginPath();
         ctx.arc(
-            gameState.food.x * config.gridSize + config.gridSize / 2,
-            gameState.food.y * config.gridSize + config.gridSize / 2,
+            gameState.specialFood.x * config.gridSize + config.gridSize / 2,
+            gameState.specialFood.y * config.gridSize + config.gridSize / 2,
             config.gridSize / 2 - 1,
             0,
             Math.PI * 2
         );
         ctx.fill();
-    } else {
-        // 绘制普通食物
-        ctx.fillStyle = '#f44336';
-        ctx.fillRect(
-            gameState.food.x * config.gridSize,
-            gameState.food.y * config.gridSize,
-            config.gridSize - 1,
-            config.gridSize - 1
-        );
     }
     
     // 绘制游戏信息
@@ -353,21 +370,58 @@ function moveSnake() {
     gameState.snake.unshift(head);
     
     // 检查是否吃到食物
+    let ateFood = false;
+    
+    // 检查是否吃到普通食物
     if (head.x === gameState.food.x && head.y === gameState.food.y) {
         // 播放吃食物音效
         playSound('eat');
         
         // 增加分数
-        if (gameState.food.isSpecial) {
-            gameState.score += config.specialFoodScore;
-            // 激活速度提升
-            activateSpeedBoost();
-        } else {
-            gameState.score += config.foodScore;
-        }
+        gameState.score += config.foodScore;
         updateScore();
+        ateFood = true;
         
-        // 检查是否升级
+        // 生成新的普通食物
+        let newFood;
+        do {
+            newFood = {
+                x: Math.floor(Math.random() * (config.canvasWidth / config.gridSize)),
+                y: Math.floor(Math.random() * (config.canvasHeight / config.gridSize)),
+                isSpecial: false
+            };
+        } while (isFoodOnSnake(newFood) || (gameState.specialFood && newFood.x === gameState.specialFood.x && newFood.y === gameState.specialFood.y));
+        gameState.food = newFood;
+    }
+    
+    // 检查是否吃到特殊食物
+    if (gameState.specialFood && head.x === gameState.specialFood.x && head.y === gameState.specialFood.y) {
+        // 播放吃食物音效
+        playSound('eat');
+        
+        // 增加分数
+        gameState.score += config.specialFoodScore;
+        // 激活速度提升
+        activateSpeedBoost();
+        updateScore();
+        ateFood = true;
+        
+        // 生成新的特殊食物（可能）
+        let newSpecialFood = null;
+        if (Math.random() < config.specialFoodChance) {
+            do {
+                newSpecialFood = {
+                    x: Math.floor(Math.random() * (config.canvasWidth / config.gridSize)),
+                    y: Math.floor(Math.random() * (config.canvasHeight / config.gridSize)),
+                    isSpecial: true
+                };
+            } while (isFoodOnSnake(newSpecialFood) || (newSpecialFood.x === gameState.food.x && newSpecialFood.y === gameState.food.y));
+        }
+        gameState.specialFood = newSpecialFood;
+    }
+    
+    // 检查是否升级
+    if (ateFood) {
         const newLevel = Math.floor(gameState.score / 50) + 1;
         if (newLevel > gameState.level) {
             gameState.level = newLevel;
@@ -392,9 +446,6 @@ function moveSnake() {
                 gameState.gameLoop = setInterval(gameTick, gameState.isSpeedBoosted ? gameState.speed * config.speedBoostMultiplier : gameState.speed);
             }
         }
-        
-        // 生成新食物
-        gameState.food = generateFood();
     } else {
         // 移除蛇尾
         gameState.snake.pop();
