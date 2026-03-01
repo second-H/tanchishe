@@ -467,32 +467,33 @@ function gameTick() {
 
 // 开始游戏
 function startGame() {
-    if (!gameState.isPlaying) {
-        // 播放开始游戏音效
-        playSound('start');
-        
-        gameState.isPlaying = true;
-        gameState.isPaused = false;
-        startBtn.disabled = true;
-        pauseBtn.disabled = false;
-        
-        // 开始计时
-        gameState.time = 0;
-        updateTime();
-        gameState.timeTimer = setInterval(() => {
-            if (!gameState.isPaused) {
-                gameState.time++;
-                updateTime();
-                
-                // 检查时间模式是否结束
-                if (gameState.mode === 'time' && gameState.time >= config.timeModeDuration) {
-                    gameOver();
-                }
+    // 无论游戏是否结束，都重新初始化游戏
+    initGame();
+    
+    // 播放开始游戏音效
+    playSound('start');
+    
+    gameState.isPlaying = true;
+    gameState.isPaused = false;
+    startBtn.disabled = true;
+    pauseBtn.disabled = false;
+    
+    // 开始计时
+    gameState.time = 0;
+    updateTime();
+    gameState.timeTimer = setInterval(() => {
+        if (!gameState.isPaused) {
+            gameState.time++;
+            updateTime();
+            
+            // 检查时间模式是否结束
+            if (gameState.mode === 'time' && gameState.time >= config.timeModeDuration) {
+                gameOver();
             }
-        }, 1000);
-        
-        gameState.gameLoop = setInterval(gameTick, gameState.isSpeedBoosted ? gameState.speed * config.speedBoostMultiplier : gameState.speed);
-    }
+        }
+    }, 1000);
+    
+    gameState.gameLoop = setInterval(gameTick, gameState.isSpeedBoosted ? gameState.speed * config.speedBoostMultiplier : gameState.speed);
 }
 
 // 暂停游戏
@@ -679,6 +680,47 @@ function closeLeaderboard() {
     leaderboardModal.style.display = 'none';
 }
 
+// 处理鼠标点击事件
+function handleMouseClick(e) {
+    if (!gameState.isPlaying) {
+        // 游戏结束状态下点击画布重新开始游戏
+        startGame();
+        return;
+    }
+    
+    if (gameState.isPaused) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    // 计算蛇头位置（像素坐标）
+    const snakeHead = gameState.snake[0];
+    const headX = snakeHead.x * config.gridSize + config.gridSize / 2;
+    const headY = snakeHead.y * config.gridSize + config.gridSize / 2;
+    
+    // 计算鼠标与蛇头的相对位置
+    const dx = mouseX - headX;
+    const dy = mouseY - headY;
+    
+    // 根据相对位置确定新方向
+    if (Math.abs(dx) > Math.abs(dy)) {
+        // 水平方向
+        if (dx > 0 && gameState.direction !== 'left') {
+            gameState.nextDirection = 'right';
+        } else if (dx < 0 && gameState.direction !== 'right') {
+            gameState.nextDirection = 'left';
+        }
+    } else {
+        // 垂直方向
+        if (dy > 0 && gameState.direction !== 'up') {
+            gameState.nextDirection = 'down';
+        } else if (dy < 0 && gameState.direction !== 'down') {
+            gameState.nextDirection = 'up';
+        }
+    }
+}
+
 // 事件监听器
 startBtn.addEventListener('click', startGame);
 pauseBtn.addEventListener('click', pauseGame);
@@ -687,6 +729,7 @@ leaderboardBtn.addEventListener('click', showLeaderboard);
 difficultySelect.addEventListener('change', initGame);
 modeSelect.addEventListener('change', initGame);
 document.addEventListener('keydown', handleKeyPress);
+canvas.addEventListener('click', handleMouseClick);
 
 // 触摸控制事件监听器
 touchUp.addEventListener('click', () => handleTouchControl('up'));
